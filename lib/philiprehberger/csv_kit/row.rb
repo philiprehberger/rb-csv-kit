@@ -25,6 +25,22 @@ module Philiprehberger
         @data[key] = value
       end
 
+      # Check if a key exists.
+      #
+      # @param key [Symbol] column name
+      # @return [Boolean]
+      def key?(key)
+        @data.key?(key)
+      end
+
+      # Delete a key from the row.
+      #
+      # @param key [Symbol] column name
+      # @return [Object, nil] removed value
+      def delete(key)
+        @data.delete(key)
+      end
+
       # Return the row as a plain hash.
       #
       # @return [Hash{Symbol => Object}]

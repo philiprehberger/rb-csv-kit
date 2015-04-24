@@ -4,7 +4,10 @@ require 'csv'
 require_relative 'csv_kit/version'
 require_relative 'csv_kit/detector'
 require_relative 'csv_kit/row'
+require_relative 'csv_kit/error_handler'
+require_relative 'csv_kit/callbacks'
 require_relative 'csv_kit/processor'
+require_relative 'csv_kit/writer'
 
 module Philiprehberger
   module CsvKit

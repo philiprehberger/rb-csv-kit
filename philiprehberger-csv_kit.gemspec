@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Streaming CSV processor with type coercion and validation'
   spec.description   = 'Streaming CSV processor with row-by-row transforms, validations, ' \
-                       'column plucking, filtering, and automatic delimiter detection.'
+                       'column plucking, filtering, writing, error recovery, and automatic delimiter detection.'
   spec.homepage      = 'https://github.com/philiprehberger/rb-csv-kit'
   spec.license       = 'MIT'
 
