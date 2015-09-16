@@ -25,7 +25,7 @@ module Philiprehberger
       #
       # @return [Array<Hash>] error details
       def errors
-        @collected_errors ||= []
+        @errors ||= []
       end
 
       private
@@ -33,17 +33,17 @@ module Philiprehberger
       def init_error_handler
         @error_handler = nil
         @max_errors = nil
-        @collected_errors = []
+        @errors = []
       end
 
       def handle_row_error(row, err)
-        @collected_errors << { row: row.to_h, error: err }
+        @errors << { row: row.to_h, error: err }
         check_max_errors!
         resolve_error_action(row, err)
       end
 
       def check_max_errors!
-        return unless @max_errors && @collected_errors.length >= @max_errors
+        return unless @max_errors && @errors.length >= @max_errors
 
         raise Error, "Max errors (#{@max_errors}) reached"
       end
