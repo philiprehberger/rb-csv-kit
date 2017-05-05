@@ -4,7 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-csv_kit.svg)](https://rubygems.org/gems/philiprehberger-csv_kit)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-csv-kit)](LICENSE)
 
-Streaming CSV processor with type coercion, validation, writing, and error recovery.
+Streaming CSV processor with type coercion, validation, writing, and error recovery
 
 ## Requirements
 
@@ -15,13 +15,7 @@ Streaming CSV processor with type coercion, validation, writing, and error recov
 Add to your Gemfile:
 
 ```ruby
-gem 'philiprehberger-csv_kit'
-```
-
-Then run:
-
-```bash
-bundle install
+gem "philiprehberger-csv_kit"
 ```
 
 Or install directly:
