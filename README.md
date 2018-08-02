@@ -4,7 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-csv_kit.svg)](https://rubygems.org/gems/philiprehberger-csv_kit)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-csv-kit)](LICENSE)
 
-Streaming CSV processor with type coercion, validation, writing, and error recovery
+Streaming CSV processor with type coercion and validation
 
 ## Requirements
 
