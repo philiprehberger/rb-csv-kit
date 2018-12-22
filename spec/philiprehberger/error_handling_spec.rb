@@ -60,6 +60,35 @@ RSpec.describe 'Error handling' do
 
       expect(rows.length).to eq(2)
     end
+
+    it 'collects error details including the row data' do
+      processor = Philiprehberger::CsvKit::Processor.new(csv_file.path)
+      processor.on_error { |_row, _err| :skip }
+      processor.transform(:age) { |v| Integer(v) }
+      processor.run
+
+      expect(processor.errors.length).to eq(1)
+      expect(processor.errors.first[:row][:name]).to eq('Bob')
+      expect(processor.errors.first[:error]).to be_a(ArgumentError)
+    end
+
+    it 'errors is empty when all rows succeed' do
+      processor = Philiprehberger::CsvKit::Processor.new(csv_file.path)
+      processor.transform(:name, &:upcase)
+      processor.run
+
+      expect(processor.errors).to eq([])
+    end
+
+    it 'handles errors raised by validation blocks gracefully' do
+      rows = Philiprehberger::CsvKit.process(csv_file.path) do |p|
+        p.on_error { |_row, _err| :skip }
+        p.transform(:age) { |v| Integer(v) }
+      end
+
+      names = rows.map { |r| r[:name] }
+      expect(names).not_to include('Bob')
+    end
   end
 
   describe 'Processor#max_errors' do
@@ -100,6 +129,23 @@ RSpec.describe 'Error handling' do
       end
 
       expect(rows.length).to eq(2)
+    end
+
+    it 'raises immediately when max_errors is set to 1' do
+      expect do
+        Philiprehberger::CsvKit.process(csv_file.path) do |p|
+          p.max_errors(1)
+          p.on_error { |_row, _err| :skip }
+          p.transform(:age) { |v| Integer(v) }
+        end
+      end.to raise_error(Philiprehberger::CsvKit::Error, /Max errors \(1\) reached/)
+    end
+
+    it 'max_errors returns self for chaining' do
+      processor = Philiprehberger::CsvKit::Processor.new(csv_file.path)
+      result = processor.max_errors(5)
+
+      expect(result).to be(processor)
     end
   end
 end
