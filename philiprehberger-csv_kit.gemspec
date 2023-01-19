@@ -3,25 +3,25 @@
 require_relative 'lib/philiprehberger/csv_kit/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'philiprehberger-csv_kit'
-  spec.version       = Philiprehberger::CsvKit::VERSION
-  spec.authors       = ['Philip Rehberger']
-  spec.email         = ['me@philiprehberger.com']
+  spec.name = 'philiprehberger-csv_kit'
+  spec.version = Philiprehberger::CsvKit::VERSION
+  spec.authors = ['Philip Rehberger']
+  spec.email = ['me@philiprehberger.com']
 
-  spec.summary       = 'Streaming CSV processor with type coercion and validation'
-  spec.description   = 'Streaming CSV processor with row-by-row transforms, validations, ' \
+  spec.summary = 'Streaming CSV processor with type coercion and validation'
+  spec.description = 'Streaming CSV processor with row-by-row transforms, validations, ' \
                        'column plucking, filtering, writing, error recovery, and automatic delimiter detection.'
-  spec.homepage      = 'https://philiprehberger.com/open-source-packages/ruby/philiprehberger-csv_kit'
-  spec.license       = 'MIT'
+  spec.homepage = 'https://philiprehberger.com/open-source-packages/ruby/philiprehberger-csv_kit'
+  spec.license = 'MIT'
 
   spec.required_ruby_version = '>= 3.1.0'
 
-  spec.metadata['homepage_uri']          = spec.homepage
-  spec.metadata['source_code_uri']       = 'https://github.com/philiprehberger/rb-csv-kit'
-  spec.metadata['changelog_uri']         = 'https://github.com/philiprehberger/rb-csv-kit/blob/main/CHANGELOG.md'
-  spec.metadata['bug_tracker_uri']       = 'https://github.com/philiprehberger/rb-csv-kit/issues'
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['source_code_uri'] = 'https://github.com/philiprehberger/rb-csv-kit'
+  spec.metadata['changelog_uri'] = 'https://github.com/philiprehberger/rb-csv-kit/blob/main/CHANGELOG.md'
+  spec.metadata['bug_tracker_uri'] = 'https://github.com/philiprehberger/rb-csv-kit/issues'
   spec.metadata['rubygems_mfa_required'] = 'true'
 
-  spec.files         = Dir['lib/**/*.rb', 'LICENSE', 'README.md', 'CHANGELOG.md']
+  spec.files = Dir['lib/**/*.rb', 'LICENSE', 'README.md', 'CHANGELOG.md']
   spec.require_paths = ['lib']
 end
