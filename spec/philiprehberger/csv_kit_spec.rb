@@ -470,4 +470,81 @@ RSpec.describe Philiprehberger::CsvKit do
       expect(row.key?(:name)).to be(false)
     end
   end
+
+  describe '.headers' do
+    it 'returns header symbols without loading data rows' do
+      result = described_class.headers(csv_file.path)
+      expect(result).to eq(%i[name age city])
+    end
+
+    it 'returns empty array for an empty file' do
+      file = write_csv('')
+      result = described_class.headers(file.path)
+      expect(result).to eq([])
+      file.close!
+    end
+
+    it 'returns headers for header-only file' do
+      file = write_csv("name,age\n")
+      result = described_class.headers(file.path)
+      expect(result).to eq(%i[name age])
+      file.close!
+    end
+  end
+
+  describe '.count' do
+    it 'counts data rows' do
+      expect(described_class.count(csv_file.path)).to eq(3)
+    end
+
+    it 'returns 0 for header-only file' do
+      file = write_csv("name,age\n")
+      expect(described_class.count(file.path)).to eq(0)
+      file.close!
+    end
+
+    it 'returns 0 for empty file' do
+      file = write_csv('')
+      expect(described_class.count(file.path)).to eq(0)
+      file.close!
+    end
+  end
+
+  describe 'Processor#skip and #limit' do
+    it 'skips the first N rows' do
+      rows = described_class.process(csv_file.path) do |p|
+        p.skip(1)
+      end
+      expect(rows.map { |r| r[:name] }).to eq(%w[Bob Carol])
+    end
+
+    it 'limits to N rows' do
+      rows = described_class.process(csv_file.path) do |p|
+        p.limit(2)
+      end
+      expect(rows.map { |r| r[:name] }).to eq(%w[Alice Bob])
+    end
+
+    it 'combines skip and limit' do
+      rows = described_class.process(csv_file.path) do |p|
+        p.skip(1)
+        p.limit(1)
+      end
+      expect(rows.map { |r| r[:name] }).to eq(%w[Bob])
+    end
+
+    it 'returns empty when skip exceeds row count' do
+      rows = described_class.process(csv_file.path) do |p|
+        p.skip(100)
+      end
+      expect(rows).to be_empty
+    end
+
+    it 'returns all rows when limit exceeds row count' do
+      rows = described_class.process(csv_file.path) do |p|
+        p.limit(100)
+      end
+      expect(rows.length).to eq(3)
+    end
+  end
 end
