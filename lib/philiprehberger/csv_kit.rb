@@ -80,6 +80,26 @@ module Philiprehberger
       n
     end
 
+    # Stream rows one at a time as symbolized hashes with constant memory.
+    # Returns an Enumerator if no block is given.
+    #
+    # @param path [String] file path
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
+    # @yield [Hash{Symbol => String}] each row
+    # @return [Enumerator, nil]
+    def self.each_hash(path, dialect: nil, &block)
+      csv_opts = { headers: true }
+      csv_opts = Dialect.new(dialect).merge_into(csv_opts) if dialect
+
+      enum = Enumerator.new do |yielder|
+        CSV.foreach(path, **csv_opts) do |row|
+          yielder.yield(row.to_h.transform_keys(&:to_sym))
+        end
+      end
+
+      block ? enum.each(&block) : enum
+    end
+
     # Filter rows and return matching rows as a CSV string.
     #
     # @param path [String] file path

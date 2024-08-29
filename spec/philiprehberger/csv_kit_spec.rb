@@ -547,4 +547,87 @@ RSpec.describe Philiprehberger::CsvKit do
       expect(rows.length).to eq(3)
     end
   end
+
+  describe '.each_hash' do
+    it 'yields each row as a symbolized hash' do
+      collected = []
+      described_class.each_hash(csv_file.path) { |row| collected << row }
+      expect(collected.length).to eq(3)
+      expect(collected.first).to eq({ name: 'Alice', age: '30', city: 'Berlin' })
+    end
+
+    it 'returns an Enumerator when no block given' do
+      enum = described_class.each_hash(csv_file.path)
+      expect(enum).to be_a(Enumerator)
+      expect(enum.first).to eq({ name: 'Alice', age: '30', city: 'Berlin' })
+    end
+
+    it 'composes with Enumerator methods' do
+      names = described_class.each_hash(csv_file.path).map { |r| r[:name] }
+      expect(names).to eq(%w[Alice Bob Carol])
+    end
+
+    it 'supports dialect option' do
+      tsv = write_csv("name\tage\nAlice\t30\n")
+      rows = described_class.each_hash(tsv.path, dialect: { delimiter: "\t" }).to_a
+      expect(rows.first[:name]).to eq('Alice')
+    ensure
+      tsv&.close!
+    end
+  end
+
+  describe Philiprehberger::CsvKit::Row do
+    let(:row) { described_class.new(name: 'Alice', age: '30') }
+
+    describe '#keys' do
+      it 'returns column names' do
+        expect(row.keys).to eq(%i[name age])
+      end
+    end
+
+    describe '#values' do
+      it 'returns column values' do
+        expect(row.values).to eq(%w[Alice 30])
+      end
+    end
+
+    describe '#size' do
+      it 'returns number of columns' do
+        expect(row.size).to eq(2)
+      end
+    end
+
+    describe '#each' do
+      it 'iterates over key-value pairs' do
+        pairs = row.map { |k, v| [k, v] }
+        expect(pairs).to eq([[:name, 'Alice'], [:age, '30']])
+      end
+    end
+
+    describe '#merge' do
+      it 'returns a new Row with merged data' do
+        merged = row.merge(city: 'Berlin')
+        expect(merged[:city]).to eq('Berlin')
+        expect(merged[:name]).to eq('Alice')
+      end
+
+      it 'does not mutate the original' do
+        row.merge(city: 'Berlin')
+        expect(row.key?(:city)).to be false
+      end
+
+      it 'accepts another Row' do
+        other = described_class.new(city: 'Berlin')
+        merged = row.merge(other)
+        expect(merged[:city]).to eq('Berlin')
+      end
+    end
+
+    describe 'Enumerable' do
+      it 'supports map' do
+        result = row.map { |k, _v| k }
+        expect(result).to eq(%i[name age])
+      end
+    end
+  end
 end

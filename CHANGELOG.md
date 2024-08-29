@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-09
+
+### Added
+- `CsvKit.each_hash(path, dialect:)` for streaming row-by-row iteration with constant memory; returns Enumerator if no block given
+- `Row` now includes `Enumerable` with `keys`, `values`, `size`, `each`, and `merge` methods
+
 ## [0.4.0] - 2026-04-09
 
 ### Added
@@ -84,3 +90,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-detect delimiter
 - Type coercion and row validation
 - Quick load and filtering convenience methods
+
+[0.5.0]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.5.0
+[0.4.0]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.4.0
+[0.3.1]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.3.1
+[0.3.0]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.3.0
+[0.2.6]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.6
+[0.2.5]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.5
+[0.2.4]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.4
+[0.2.3]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.3
+[0.2.2]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.2
+[0.2.1]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.1
+[0.2.0]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.2.0
+[0.1.2]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.1.2
+[0.1.0]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.1.0
