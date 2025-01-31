@@ -69,6 +69,15 @@ adults = Philiprehberger::CsvKit.each_hash("data.csv")
   .first(10)
 ```
 
+### Find First Match
+
+Return the first row that matches a predicate, streaming and stopping on the first hit:
+
+```ruby
+user = Philiprehberger::CsvKit.find("users.csv") { |row| row[:email] == "a@b.com" }
+# => {email: "a@b.com", name: "Alice"} or nil
+```
+
 ### Filter Rows
 
 ```ruby
@@ -168,6 +177,7 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 | `CsvKit.to_hashes(path, dialect:)` | Load CSV into array of symbolized hashes |
 | `CsvKit.pluck(path, *keys, dialect:)` | Extract specific columns |
 | `CsvKit.filter(path, dialect:, &block)` | Filter rows, return CSV string |
+| `CsvKit.find(path, dialect:, &block)` | Return the first row matching the predicate, or nil |
 | `CsvKit.headers(path, dialect:)` | Return header row as array of symbols |
 | `CsvKit.count(path, dialect:)` | Count data rows without loading into memory |
 | `CsvKit.each_hash(path, dialect:, &block)` | Stream rows as symbolized hashes; returns Enumerator if no block |

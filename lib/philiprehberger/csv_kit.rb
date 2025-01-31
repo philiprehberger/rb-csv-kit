@@ -100,6 +100,22 @@ module Philiprehberger
       block ? enum.each(&block) : enum
     end
 
+    # Find the first row matching a predicate, streaming (stops as soon as a match is found).
+    #
+    # @param path [String] file path
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
+    # @yield [Hash{Symbol => String}] each row as a symbolized hash
+    # @return [Hash{Symbol => String}, nil] the first matching row or nil
+    def self.find(path, dialect: nil, &block)
+      csv_opts = { headers: true }
+      csv_opts = Dialect.new(dialect).merge_into(csv_opts) if dialect
+      CSV.foreach(path, **csv_opts) do |row|
+        hash = row.to_h.transform_keys(&:to_sym)
+        return hash if block.call(hash)
+      end
+      nil
+    end
+
     # Filter rows and return matching rows as a CSV string.
     #
     # @param path [String] file path

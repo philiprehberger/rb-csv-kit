@@ -121,6 +121,17 @@ RSpec.describe Philiprehberger::CsvKit do
     end
   end
 
+  describe '.find' do
+    it 'returns the first row matching the predicate' do
+      result = described_class.find(csv_file.path) { |row| row[:name] == 'Bob' }
+      expect(result[:name]).to eq('Bob')
+    end
+
+    it 'returns nil when no row matches' do
+      expect(described_class.find(csv_file.path) { |row| row[:name] == 'Nobody' }).to be_nil
+    end
+  end
+
   describe '.filter' do
     it 'returns filtered rows as CSV string' do
       result = described_class.filter(csv_file.path) { |row| row[:age].to_i >= 30 }
