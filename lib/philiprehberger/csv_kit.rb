@@ -100,6 +100,41 @@ module Philiprehberger
       block ? enum.each(&block) : enum
     end
 
+    # Return n randomly sampled rows using reservoir sampling (Algorithm R).
+    # Memory usage is O(n) regardless of file size.
+    # If the file has fewer than n rows, all rows are returned.
+    #
+    # @param path_or_io [String, IO] file path or IO object
+    # @param n [Integer] number of rows to sample
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
+    # @return [Array<Hash{Symbol => String}>]
+    def self.sample(path_or_io, n, dialect: nil)
+      csv_opts = { headers: true }
+      csv_opts = Dialect.new(dialect).merge_into(csv_opts) if dialect
+
+      reservoir = []
+      index = 0
+
+      iterate = lambda do |row|
+        hash = row.to_h.transform_keys(&:to_sym)
+        if index < n
+          reservoir << hash
+        else
+          j = rand(index + 1)
+          reservoir[j] = hash if j < n
+        end
+        index += 1
+      end
+
+      if path_or_io.is_a?(String)
+        CSV.foreach(path_or_io, **csv_opts, &iterate)
+      else
+        CSV.new(path_or_io, **csv_opts).each(&iterate)
+      end
+
+      reservoir
+    end
+
     # Find the first row matching a predicate, streaming (stops as soon as a match is found).
     #
     # @param path [String] file path
