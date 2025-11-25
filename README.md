@@ -124,6 +124,21 @@ rows = Philiprehberger::CsvKit.process("data.csv", dialect: { delimiter: ";", qu
 end
 ```
 
+### Write CSV String
+
+Inverse of `to_hashes`. Serialize an array of hashes to a CSV string. Headers default to the keys of the first row:
+
+```ruby
+csv = Philiprehberger::CsvKit.to_csv([
+  { name: "Alice", age: 30 },
+  { name: "Bob",   age: 25 }
+])
+# => "name,age\nAlice,30\nBob,25\n"
+
+# Control column order / subset with explicit headers
+Philiprehberger::CsvKit.to_csv(rows, headers: [:name])
+```
+
 ### Writing CSV
 
 ```ruby
@@ -183,14 +198,15 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 
 | Method / Class | Description |
 |----------------|-------------|
-| `CsvKit.to_hashes(path, dialect:)` | Load CSV into array of symbolized hashes |
+| `CsvKit.to_hashes(path_or_io, dialect:)` | Load CSV into array of symbolized hashes |
+| `CsvKit.to_csv(rows, headers:, dialect:)` | Serialize an array of hashes to a CSV string |
 | `CsvKit.sample(path_or_io, n, dialect:)` | Return n randomly sampled rows using reservoir sampling (Algorithm R) |
-| `CsvKit.pluck(path, *keys, dialect:)` | Extract specific columns |
-| `CsvKit.filter(path, dialect:, &block)` | Filter rows, return CSV string |
-| `CsvKit.find(path, dialect:, &block)` | Return the first row matching the predicate, or nil |
-| `CsvKit.headers(path, dialect:)` | Return header row as array of symbols |
-| `CsvKit.count(path, dialect:)` | Count data rows without loading into memory |
-| `CsvKit.each_hash(path, dialect:, &block)` | Stream rows as symbolized hashes; returns Enumerator if no block |
+| `CsvKit.pluck(path_or_io, *keys, dialect:)` | Extract specific columns |
+| `CsvKit.filter(path_or_io, dialect:, &block)` | Filter rows, return CSV string |
+| `CsvKit.find(path_or_io, dialect:, &block)` | Return the first row matching the predicate, or nil |
+| `CsvKit.headers(path_or_io, dialect:)` | Return header row as array of symbols |
+| `CsvKit.count(path_or_io, dialect:)` | Count data rows without loading into memory |
+| `CsvKit.each_hash(path_or_io, dialect:, &block)` | Stream rows as symbolized hashes; returns Enumerator if no block |
 | `CsvKit.process(path_or_io, dialect:, &block)` | Streaming DSL with transforms and validations |
 | `Processor#headers(*names)` | Override header names |
 | `Processor#transform(key, &block)` | Register column transform |
