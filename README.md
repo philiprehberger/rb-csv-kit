@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/philiprehberger/rb-csv-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-csv-kit/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-csv_kit.svg)](https://rubygems.org/gems/philiprehberger-csv_kit)
+[![License](https://img.shields.io/github/license/philiprehberger/rb-csv-kit)](LICENSE)
 
 Streaming CSV processor with type coercion and validation.
 
