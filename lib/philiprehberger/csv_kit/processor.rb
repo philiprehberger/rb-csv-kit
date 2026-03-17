@@ -4,6 +4,9 @@ module Philiprehberger
   module CsvKit
     # Streaming CSV processor with a DSL for transforms, validations, and filtering.
     class Processor
+      include ErrorHandler
+      include Callbacks
+
       def initialize(path_or_io)
         @path_or_io = path_or_io
         @transforms = {}
@@ -11,41 +14,31 @@ module Philiprehberger
         @reject_block = nil
         @each_block = nil
         @header_names = nil
+        init_error_handler
+        init_callbacks
       end
 
       # Override header names used for symbolized keys.
-      #
-      # @param names [Array<Symbol>] header names
       def headers(*names)
         @header_names = names.map(&:to_sym)
       end
 
       # Register a transform for a specific column.
-      #
-      # @param key [Symbol] column name
-      # @yield [String] raw cell value
       def transform(key, &block)
         @transforms[key] = block
       end
 
-      # Register a validation for a specific column. Rows failing validation are skipped.
-      #
-      # @param key [Symbol] column name
-      # @yield [String] cell value
+      # Register a validation for a specific column.
       def validate(key, &block)
         @validations[key] = block
       end
 
-      # Register a reject predicate. Rows matching are excluded.
-      #
-      # @yield [Row] the row
+      # Register a reject predicate.
       def reject(&block)
         @reject_block = block
       end
 
       # Register a callback for each processed row.
-      #
-      # @yield [Row] the row
       def each(&block)
         @each_block = block
       end
@@ -54,6 +47,7 @@ module Philiprehberger
       #
       # @return [Array<Row>] collected rows
       def run
+        @collected_errors = []
         open_csv { |csv| process_rows(csv) }
       end
 
@@ -61,30 +55,41 @@ module Philiprehberger
 
       def process_rows(csv)
         csv.each_with_object([]) do |csv_row, results|
-          row = build_row(csv_row)
-          next unless valid?(row)
-          next if rejected?(row)
-
-          apply_transforms!(row)
-          @each_block&.call(row)
-          results << row
+          process_single_row(csv_row, results)
         end
+      end
+
+      def process_single_row(csv_row, results)
+        row = build_row(csv_row)
+        return unless valid?(row)
+        return if rejected?(row)
+
+        apply_transforms!(row)
+        apply_renames!(row)
+        @each_block&.call(row)
+        @after_each_block&.call(row)
+        results << row
+      rescue StandardError => e
+        handle_error_for_row(row, e, results)
+      end
+
+      def handle_error_for_row(row, err, _results)
+        action = handle_row_error(row, err)
+        raise Error, "Aborted: #{err.message}" if action == :abort
       end
 
       def open_csv(&block)
         if @path_or_io.is_a?(String)
           CSV.open(@path_or_io, headers: true, &block)
         else
-          csv = CSV.new(@path_or_io, headers: true)
-          block.call(csv)
+          block.call(CSV.new(@path_or_io, headers: true))
         end
       end
 
       def build_row(csv_row)
         data = csv_row.to_h
         if @header_names
-          values = data.values
-          mapped = @header_names.zip(values).to_h
+          mapped = @header_names.zip(data.values).to_h
           Row.new(mapped)
         else
           Row.new(data.transform_keys(&:to_sym))
