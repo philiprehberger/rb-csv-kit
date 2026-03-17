@@ -64,8 +64,8 @@ RSpec.describe 'Error handling' do
 
   describe 'Processor#max_errors' do
     let(:many_bad_csv) do
-      lines = ["name,age"] + (1..20).map { |i| "Person#{i},bad" }
-      write_csv(lines.join("\n") + "\n")
+      lines = ['name,age'] + (1..20).map { |i| "Person#{i},bad" }
+      write_csv("#{lines.join("\n")}\n")
     end
 
     after { many_bad_csv.close! if many_bad_csv.respond_to?(:close!) }
