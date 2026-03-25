@@ -52,6 +52,55 @@ RSpec.describe Philiprehberger::CsvKit::Writer do
 
       expect(result).to include('name,age')
     end
+
+    it 'quotes values containing commas' do
+      result = writer.write([{ name: 'Smith, John', age: 30, city: 'Berlin' }])
+
+      expect(result).to include('"Smith, John"')
+    end
+
+    it 'quotes values containing double quotes' do
+      result = writer.write([{ name: 'She said "hi"', age: 30, city: 'Berlin' }])
+
+      expect(result).to include('"She said ""hi"""')
+    end
+
+    it 'quotes values containing newlines' do
+      result = writer.write([{ name: "line1\nline2", age: 30, city: 'Berlin' }])
+
+      expect(result).to include("\"line1\nline2\"")
+    end
+
+    it 'handles nil values in hash rows' do
+      result = writer.write([{ name: nil, age: nil, city: nil }])
+      lines = result.strip.split("\n")
+
+      expect(lines.last).to eq(',,')
+    end
+
+    it 'handles nil values in array rows' do
+      result = writer.write([[nil, nil, nil]])
+      lines = result.strip.split("\n")
+
+      expect(lines.last).to eq(',,')
+    end
+
+    it 'preserves order of headers for hash rows' do
+      w = described_class.new(headers: %i[city name age])
+      result = w.write([{ name: 'Alice', age: 30, city: 'Berlin' }])
+      lines = result.strip.split("\n")
+
+      expect(lines.first).to eq('city,name,age')
+      expect(lines.last).to eq('Berlin,Alice,30')
+    end
+
+    it 'handles a single-column writer' do
+      w = described_class.new(headers: [:id])
+      result = w.write([{ id: 1 }, { id: 2 }])
+      lines = result.strip.split("\n")
+
+      expect(lines).to eq(%w[id 1 2])
+    end
   end
 
   describe '#write_to' do

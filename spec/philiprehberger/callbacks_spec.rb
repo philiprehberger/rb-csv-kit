@@ -82,6 +82,43 @@ RSpec.describe 'Callbacks and aliasing' do
     end
   end
 
+  describe 'Processor#rename with non-existent column' do
+    it 'silently ignores renaming a column that does not exist' do
+      rows = Philiprehberger::CsvKit.process(csv_file.path) do |p|
+        p.rename(:nonexistent, :something)
+      end
+
+      expect(rows.first.key?(:something)).to be(false)
+      expect(rows.first[:name]).to eq('Alice')
+    end
+  end
+
+  describe 'Processor#after_each with reject' do
+    it 'does not call after_each for rejected rows' do
+      collected = []
+
+      Philiprehberger::CsvKit.process(csv_file.path) do |p|
+        p.reject { |row| row[:name] == 'Bob' }
+        p.after_each { |row| collected << row[:name] }
+      end
+
+      expect(collected).to eq(%w[Alice])
+    end
+  end
+
+  describe 'Processor#after_each with validation' do
+    it 'does not call after_each for rows that fail validation' do
+      collected = []
+
+      Philiprehberger::CsvKit.process(csv_file.path) do |p|
+        p.validate(:age) { |v| v.to_i >= 30 }
+        p.after_each { |row| collected << row[:name] }
+      end
+
+      expect(collected).to eq(%w[Alice])
+    end
+  end
+
   describe Philiprehberger::CsvKit::Row do
     subject(:row) { described_class.new(name: 'Alice', age: '30') }
 
