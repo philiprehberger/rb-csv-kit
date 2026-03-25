@@ -27,7 +27,7 @@ gem install philiprehberger-csv_kit
 ## Usage
 
 ```ruby
-require 'philiprehberger/csv_kit'
+require "philiprehberger/csv_kit"
 ```
 
 ### Quick Load
@@ -151,8 +151,8 @@ delimiter = Philiprehberger::CsvKit::Detector.detect('data.tsv')
 
 ```bash
 bundle install
-bundle exec rspec      # Run tests
-bundle exec rubocop    # Check code style
+bundle exec rspec
+bundle exec rubocop
 ```
 
 ## License
