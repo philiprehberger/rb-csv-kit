@@ -52,7 +52,7 @@ RSpec.describe Philiprehberger::CsvKit do
       file = write_csv("first name,last name\nAlice,Smith\n")
       result = described_class.to_hashes(file.path)
 
-      expect(result.first[:"first name"]).to eq('Alice')
+      expect(result.first[:'first name']).to eq('Alice')
       file.close!
     end
 
