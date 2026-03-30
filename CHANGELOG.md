@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-29
+
+### Added
+
+- CSV dialect support with predefined presets (`:excel`, `:excel_tab`, `:unix`) and custom dialects
+- Date/time type coercions via `Processor#type` — built-in `:date` and `:datetime` types with optional format strings
+- Streaming writer via `Writer.stream(io, headers:) { |w| w << row }` for incremental CSV output
+- Dialect integration into `process()`, `to_hashes()`, `pluck()`, and `filter()` methods
+
 ## [0.2.6] - 2026-03-26
 
 ### Changed

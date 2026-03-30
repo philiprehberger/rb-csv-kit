@@ -7,8 +7,29 @@ module Philiprehberger
       include ErrorHandler
       include Callbacks
 
-      def initialize(path_or_io)
+      TYPE_COERCIONS = {
+        integer: ->(v, _opts) { Integer(v) },
+        float: ->(v, _opts) { Float(v) },
+        string: ->(v, _opts) { v.to_s },
+        date: lambda { |v, opts|
+          if opts[:format]
+            Date.strptime(v, opts[:format])
+          else
+            Date.parse(v)
+          end
+        },
+        datetime: lambda { |v, opts|
+          if opts[:format]
+            Time.strptime(v, opts[:format])
+          else
+            Time.parse(v)
+          end
+        }
+      }.freeze
+
+      def initialize(path_or_io, dialect: nil)
         @path_or_io = path_or_io
+        @dialect = dialect ? Dialect.new(dialect) : nil
         @transforms = {}
         @validations = {}
         @reject_block = nil
@@ -26,6 +47,18 @@ module Philiprehberger
       # Register a transform for a specific column.
       def transform(key, &block)
         @transforms[key] = block
+      end
+
+      # Register a built-in type coercion for a column.
+      #
+      # @param key [Symbol] column name
+      # @param type_name [Symbol] one of :integer, :float, :string, :date, :datetime
+      # @param opts [Hash] additional options (e.g. format: '%Y-%m-%d')
+      def type(key, type_name, **opts)
+        coercion = TYPE_COERCIONS[type_name]
+        raise ArgumentError, "Unknown type: #{type_name}" unless coercion
+
+        @transforms[key] = ->(v) { coercion.call(v, opts) }
       end
 
       # Register a validation for a specific column.
@@ -79,10 +112,13 @@ module Philiprehberger
       end
 
       def open_csv(&block)
+        csv_opts = { headers: true }
+        csv_opts = @dialect.merge_into(csv_opts) if @dialect
+
         if @path_or_io.is_a?(String)
-          CSV.open(@path_or_io, headers: true, &block)
+          CSV.open(@path_or_io, **csv_opts, &block)
         else
-          block.call(CSV.new(@path_or_io, headers: true))
+          block.call(CSV.new(@path_or_io, **csv_opts))
         end
       end
 

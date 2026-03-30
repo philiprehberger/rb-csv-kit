@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'csv'
+require 'date'
+require 'time'
 require_relative 'csv_kit/version'
+require_relative 'csv_kit/dialect'
 require_relative 'csv_kit/detector'
 require_relative 'csv_kit/row'
 require_relative 'csv_kit/error_handler'
@@ -16,10 +19,11 @@ module Philiprehberger
     # Streaming DSL — yields a Processor for configuration, then executes.
     #
     # @param path_or_io [String, IO] file path or IO object
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
     # @yield [Processor] processor to configure transforms and validations
     # @return [Array<Row>] collected rows
-    def self.process(path_or_io, &block)
-      processor = Processor.new(path_or_io)
+    def self.process(path_or_io, dialect: nil, &block)
+      processor = Processor.new(path_or_io, dialect: dialect)
       block.call(processor)
       processor.run
     end
@@ -27,9 +31,12 @@ module Philiprehberger
     # Load an entire CSV into an array of symbolized hashes.
     #
     # @param path [String] file path
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
     # @return [Array<Hash{Symbol => String}>]
-    def self.to_hashes(path)
-      CSV.foreach(path, headers: true).map do |row|
+    def self.to_hashes(path, dialect: nil)
+      csv_opts = { headers: true }
+      csv_opts = Dialect.new(dialect).merge_into(csv_opts) if dialect
+      CSV.foreach(path, **csv_opts).map do |row|
         row.to_h.transform_keys(&:to_sym)
       end
     end
@@ -38,18 +45,20 @@ module Philiprehberger
     #
     # @param path [String] file path
     # @param keys [Array<Symbol>] column names to extract
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
     # @return [Array<Hash{Symbol => String}>]
-    def self.pluck(path, *keys)
-      to_hashes(path).map { |h| h.slice(*keys) }
+    def self.pluck(path, *keys, dialect: nil)
+      to_hashes(path, dialect: dialect).map { |h| h.slice(*keys) }
     end
 
     # Filter rows and return matching rows as a CSV string.
     #
     # @param path [String] file path
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
     # @yield [Hash{Symbol => String}] each row as a symbolized hash
     # @return [String] CSV string with headers
-    def self.filter(path, &)
-      rows = to_hashes(path).select(&)
+    def self.filter(path, dialect: nil, &)
+      rows = to_hashes(path, dialect: dialect).select(&)
       return '' if rows.empty?
 
       headers = rows.first.keys
