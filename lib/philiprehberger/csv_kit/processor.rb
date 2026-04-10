@@ -35,6 +35,8 @@ module Philiprehberger
         @reject_block = nil
         @each_block = nil
         @header_names = nil
+        @skip_count = nil
+        @limit_count = nil
         init_error_handler
         init_callbacks
       end
@@ -66,6 +68,22 @@ module Philiprehberger
         @validations[key] = block
       end
 
+      # Skip the first N data rows during processing.
+      #
+      # @param n [Integer] number of rows to skip
+      # @return [void]
+      def skip(n)
+        @skip_count = n
+      end
+
+      # Stop after processing N rows.
+      #
+      # @param n [Integer] maximum rows to collect
+      # @return [void]
+      def limit(n)
+        @limit_count = n
+      end
+
       # Register a reject predicate.
       def reject(&block)
         @reject_block = block
@@ -87,7 +105,14 @@ module Philiprehberger
       private
 
       def process_rows(csv)
+        skipped = 0
         csv.each_with_object([]) do |csv_row, results|
+          if @skip_count && skipped < @skip_count
+            skipped += 1
+            next
+          end
+          break results if @limit_count && results.length >= @limit_count
+
           process_single_row(csv_row, results)
         end
       end

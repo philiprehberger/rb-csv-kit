@@ -51,6 +51,35 @@ module Philiprehberger
       to_hashes(path, dialect: dialect).map { |h| h.slice(*keys) }
     end
 
+    # Return the header row as an array of symbols.
+    #
+    # @param path [String] file path
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
+    # @return [Array<Symbol>]
+    def self.headers(path, dialect: nil)
+      csv_opts = {}
+      csv_opts = Dialect.new(dialect).merge_into(csv_opts) if dialect
+      CSV.open(path, **csv_opts) do |csv|
+        row = csv.shift
+        return [] unless row
+
+        row.map(&:to_sym)
+      end
+    end
+
+    # Count data rows without loading them all into memory.
+    #
+    # @param path [String] file path
+    # @param dialect [Symbol, Hash, nil] CSV dialect preset or custom options
+    # @return [Integer]
+    def self.count(path, dialect: nil)
+      csv_opts = { headers: true }
+      csv_opts = Dialect.new(dialect).merge_into(csv_opts) if dialect
+      n = 0
+      CSV.foreach(path, **csv_opts) { |_| n += 1 }
+      n
+    end
+
     # Filter rows and return matching rows as a CSV string.
     #
     # @param path [String] file path

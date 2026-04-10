@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-09
+
+### Added
+- `CsvKit.headers(path, dialect:)` to inspect header row without loading data
+- `CsvKit.count(path, dialect:)` to count data rows without loading into memory
+- `Processor#skip(n)` to skip the first N data rows
+- `Processor#limit(n)` to stop after processing N rows
+
 ## [0.3.1] - 2026-03-31
 
 ### Changed

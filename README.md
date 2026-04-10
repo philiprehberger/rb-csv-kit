@@ -40,6 +40,20 @@ names = Philiprehberger::CsvKit.pluck("data.csv", :name, :city)
 # => [{name: "Alice", city: "Berlin"}, ...]
 ```
 
+### Inspect Headers
+
+```ruby
+Philiprehberger::CsvKit.headers("data.csv")
+# => [:name, :age, :city]
+```
+
+### Count Rows
+
+```ruby
+Philiprehberger::CsvKit.count("data.csv")
+# => 1000
+```
+
 ### Filter Rows
 
 ```ruby
@@ -108,6 +122,15 @@ rows = Philiprehberger::CsvKit.process("data.csv") do |p|
 end
 ```
 
+### Skip and Limit
+
+```ruby
+rows = Philiprehberger::CsvKit.process("data.csv") do |p|
+  p.skip(10)   # skip first 10 rows
+  p.limit(50)  # stop after 50 rows
+end
+```
+
 ### Column Aliasing
 
 ```ruby
@@ -130,11 +153,15 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 | `CsvKit.to_hashes(path, dialect:)` | Load CSV into array of symbolized hashes |
 | `CsvKit.pluck(path, *keys, dialect:)` | Extract specific columns |
 | `CsvKit.filter(path, dialect:, &block)` | Filter rows, return CSV string |
+| `CsvKit.headers(path, dialect:)` | Return header row as array of symbols |
+| `CsvKit.count(path, dialect:)` | Count data rows without loading into memory |
 | `CsvKit.process(path_or_io, dialect:, &block)` | Streaming DSL with transforms and validations |
 | `Processor#headers(*names)` | Override header names |
 | `Processor#transform(key, &block)` | Register column transform |
 | `Processor#type(key, type, **opts)` | Register built-in type coercion (:integer, :float, :string, :date, :datetime) |
 | `Processor#validate(key, &block)` | Register column validation (skip invalid) |
+| `Processor#skip(n)` | Skip the first N data rows |
+| `Processor#limit(n)` | Stop after processing N rows |
 | `Processor#reject(&block)` | Reject rows matching predicate |
 | `Processor#each(&block)` | Callback for each processed row |
 | `Processor#on_error(&block)` | Per-row error handler (return `:skip` or `:abort`) |
