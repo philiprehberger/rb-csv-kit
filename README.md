@@ -54,6 +54,21 @@ Philiprehberger::CsvKit.count("data.csv")
 # => 1000
 ```
 
+### Streaming Row-by-Row
+
+Iterate rows with constant memory. Returns an `Enumerator` if no block is given:
+
+```ruby
+Philiprehberger::CsvKit.each_hash("large.csv") do |row|
+  puts row[:name]
+end
+
+# Or compose with Enumerator methods:
+adults = Philiprehberger::CsvKit.each_hash("data.csv")
+  .select { |r| r[:age].to_i >= 18 }
+  .first(10)
+```
+
 ### Filter Rows
 
 ```ruby
@@ -155,6 +170,7 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 | `CsvKit.filter(path, dialect:, &block)` | Filter rows, return CSV string |
 | `CsvKit.headers(path, dialect:)` | Return header row as array of symbols |
 | `CsvKit.count(path, dialect:)` | Count data rows without loading into memory |
+| `CsvKit.each_hash(path, dialect:, &block)` | Stream rows as symbolized hashes; returns Enumerator if no block |
 | `CsvKit.process(path_or_io, dialect:, &block)` | Streaming DSL with transforms and validations |
 | `Processor#headers(*names)` | Override header names |
 | `Processor#transform(key, &block)` | Register column transform |
@@ -176,6 +192,11 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 | `Dialect.new(name_or_hash)` | Create a dialect from preset or custom hash |
 | `Detector.detect(path_or_io)` | Auto-detect CSV delimiter |
 | `Row#[](key)` | Access value by symbol key |
+| `Row#keys` | Column names as array of symbols |
+| `Row#values` | Column values as array |
+| `Row#size` | Number of columns |
+| `Row#each { \|k, v\| }` | Iterate key-value pairs (Enumerable) |
+| `Row#merge(other)` | Return new Row with merged data |
 | `Row#to_h` | Convert row to plain hash |
 
 ## Development
