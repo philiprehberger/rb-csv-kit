@@ -83,6 +83,70 @@ RSpec.describe Philiprehberger::CsvKit do
     end
   end
 
+  describe '.to_hashes (IO input)' do
+    it 'accepts a StringIO' do
+      io = StringIO.new(csv_content)
+      result = described_class.to_hashes(io)
+
+      expect(result.length).to eq(3)
+      expect(result.first).to eq(name: 'Alice', age: '30', city: 'Berlin')
+    end
+  end
+
+  describe '.to_csv' do
+    it 'serializes an array of hashes to CSV string' do
+      result = described_class.to_csv([
+                                        { name: 'Alice', age: 30 },
+                                        { name: 'Bob', age: 25 }
+                                      ])
+
+      lines = result.strip.split("\n")
+      expect(lines.first).to eq('name,age')
+      expect(lines[1]).to eq('Alice,30')
+      expect(lines[2]).to eq('Bob,25')
+    end
+
+    it 'returns empty string for empty input without headers' do
+      expect(described_class.to_csv([])).to eq('')
+    end
+
+    it 'emits headers only when input empty but headers provided' do
+      result = described_class.to_csv([], headers: %i[name age])
+
+      expect(result.strip).to eq('name,age')
+    end
+
+    it 'respects explicit header order and subset' do
+      rows = [{ name: 'Alice', age: 30, city: 'Berlin' }]
+      result = described_class.to_csv(rows, headers: %i[city name])
+
+      lines = result.strip.split("\n")
+      expect(lines.first).to eq('city,name')
+      expect(lines.last).to eq('Berlin,Alice')
+    end
+
+    it 'accepts string keys' do
+      result = described_class.to_csv([{ 'name' => 'Alice', 'age' => 30 }])
+
+      expect(result.strip.split("\n").last).to eq('Alice,30')
+    end
+
+    it 'supports dialect option' do
+      result = described_class.to_csv([{ name: 'Alice', age: 30 }], dialect: { delimiter: ';' })
+
+      expect(result).to include('name;age')
+      expect(result).to include('Alice;30')
+    end
+
+    it 'round-trips with to_hashes' do
+      rows = [{ name: 'Alice', age: '30' }, { name: 'Bob', age: '25' }]
+      csv = described_class.to_csv(rows)
+
+      parsed = described_class.to_hashes(StringIO.new(csv))
+      expect(parsed).to eq(rows)
+    end
+  end
+
   describe '.pluck' do
     it 'extracts specific columns' do
       result = described_class.pluck(csv_file.path, :name, :city)
@@ -129,6 +193,13 @@ RSpec.describe Philiprehberger::CsvKit do
 
     it 'returns nil when no row matches' do
       expect(described_class.find(csv_file.path) { |row| row[:name] == 'Nobody' }).to be_nil
+    end
+
+    it 'accepts a StringIO' do
+      io = StringIO.new(csv_content)
+      result = described_class.find(io) { |row| row[:name] == 'Carol' }
+
+      expect(result[:city]).to eq('Zurich')
     end
   end
 
@@ -178,6 +249,14 @@ RSpec.describe Philiprehberger::CsvKit do
       expect(lines.last).to include('Alice')
       expect(lines.last).to include('30')
       expect(lines.last).to include('Berlin')
+    end
+
+    it 'accepts a StringIO' do
+      io = StringIO.new(csv_content)
+      result = described_class.filter(io) { |row| row[:name] == 'Alice' }
+
+      expect(result).to include('Alice')
+      expect(result).not_to include('Bob')
     end
   end
 
@@ -501,6 +580,10 @@ RSpec.describe Philiprehberger::CsvKit do
       expect(result).to eq(%i[name age])
       file.close!
     end
+
+    it 'accepts a StringIO' do
+      expect(described_class.headers(StringIO.new(csv_content))).to eq(%i[name age city])
+    end
   end
 
   describe '.count' do
@@ -518,6 +601,10 @@ RSpec.describe Philiprehberger::CsvKit do
       file = write_csv('')
       expect(described_class.count(file.path)).to eq(0)
       file.close!
+    end
+
+    it 'accepts a StringIO' do
+      expect(described_class.count(StringIO.new(csv_content))).to eq(3)
     end
   end
 
