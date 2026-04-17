@@ -559,6 +559,64 @@ RSpec.describe Philiprehberger::CsvKit do
     end
   end
 
+  describe '.sample' do
+    it 'returns n rows as symbolized hashes' do
+      result = described_class.sample(csv_file.path, 2)
+
+      expect(result.length).to eq(2)
+      expect(result.first).to have_key(:name)
+      expect(result.first).to have_key(:age)
+      expect(result.first).to have_key(:city)
+    end
+
+    it 'returns all rows when n exceeds row count' do
+      result = described_class.sample(csv_file.path, 100)
+
+      expect(result.length).to eq(3)
+    end
+
+    it 'returns an empty array for a header-only CSV' do
+      file = write_csv("name,age,city\n")
+      result = described_class.sample(file.path, 2)
+
+      expect(result).to eq([])
+      file.close!
+    end
+
+    it 'returns all rows when n equals row count' do
+      result = described_class.sample(csv_file.path, 3)
+
+      expect(result.length).to eq(3)
+    end
+
+    it 'returns rows that are subsets of the original data' do
+      result = described_class.sample(csv_file.path, 2)
+      all_names = %w[Alice Bob Carol]
+
+      result.each do |row|
+        expect(all_names).to include(row[:name])
+      end
+    end
+
+    it 'returns an empty array for an empty CSV' do
+      file = write_csv('')
+      result = described_class.sample(file.path, 2)
+
+      expect(result).to eq([])
+      file.close!
+    end
+
+    it 'works with a dialect option' do
+      tsv = write_csv("name\tage\nAlice\t30\nBob\t25\n")
+      result = described_class.sample(tsv.path, 1, dialect: { delimiter: "\t" })
+
+      expect(result.length).to eq(1)
+      expect(result.first).to have_key(:name)
+    ensure
+      tsv&.close!
+    end
+  end
+
   describe '.each_hash' do
     it 'yields each row as a symbolized hash' do
       collected = []

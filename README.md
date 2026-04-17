@@ -69,6 +69,15 @@ adults = Philiprehberger::CsvKit.each_hash("data.csv")
   .first(10)
 ```
 
+### Reservoir Sampling
+
+Return n randomly sampled rows with O(n) memory using Knuth's Algorithm R. If the file has fewer than n rows, all rows are returned:
+
+```ruby
+rows = Philiprehberger::CsvKit.sample("large.csv", 100)
+# => [{name: "Alice", age: "30"}, ...]
+```
+
 ### Find First Match
 
 Return the first row that matches a predicate, streaming and stopping on the first hit:
@@ -175,6 +184,7 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 | Method / Class | Description |
 |----------------|-------------|
 | `CsvKit.to_hashes(path, dialect:)` | Load CSV into array of symbolized hashes |
+| `CsvKit.sample(path_or_io, n, dialect:)` | Return n randomly sampled rows using reservoir sampling (Algorithm R) |
 | `CsvKit.pluck(path, *keys, dialect:)` | Extract specific columns |
 | `CsvKit.filter(path, dialect:, &block)` | Filter rows, return CSV string |
 | `CsvKit.find(path, dialect:, &block)` | Return the first row matching the predicate, or nil |
