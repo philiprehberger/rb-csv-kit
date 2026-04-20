@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-04-19
+
+### Added
+- `Processor#default(key, value)` — fill nil or empty cells at `key` with a default value during transform; chains naturally with `type:` coercion
+
 ## [0.8.0] - 2026-04-17
 
 ### Added
@@ -107,7 +112,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Type coercion and row validation
 - Quick load and filtering convenience methods
 
-[Unreleased]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.5.0...v0.6.0
