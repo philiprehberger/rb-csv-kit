@@ -31,6 +31,7 @@ module Philiprehberger
         @path_or_io = path_or_io
         @dialect = dialect ? Dialect.new(dialect) : nil
         @transforms = {}
+        @defaults = {}
         @validations = {}
         @reject_block = nil
         @each_block = nil
@@ -61,6 +62,22 @@ module Philiprehberger
         raise ArgumentError, "Unknown type: #{type_name}" unless coercion
 
         @transforms[key] = ->(v) { coercion.call(v, opts) }
+      end
+
+      # Register a default value for a column.
+      #
+      # Cells where the value is `nil` or an empty string are replaced with
+      # the provided default during transform. Defaults run BEFORE `type`
+      # coercions and `transform` blocks, so callers can default a missing
+      # cell to a string and then coerce it (e.g. default to "0" then cast
+      # to :integer).
+      #
+      # @param key [Symbol] column name
+      # @param value [Object] value to use when the cell is nil or empty
+      # @return [self]
+      def default(key, value)
+        @defaults[key] = value
+        self
       end
 
       # Register a validation for a specific column.
@@ -122,6 +139,7 @@ module Philiprehberger
         return unless valid?(row)
         return if rejected?(row)
 
+        apply_defaults!(row)
         apply_transforms!(row)
         apply_renames!(row)
         @each_block&.call(row)
@@ -163,6 +181,13 @@ module Philiprehberger
 
       def rejected?(row)
         @reject_block&.call(row) || false
+      end
+
+      def apply_defaults!(row)
+        @defaults.each do |key, value|
+          current = row[key]
+          row[key] = value if current.nil? || current.to_s.empty?
+        end
       end
 
       def apply_transforms!(row)

@@ -106,6 +106,17 @@ rows = Philiprehberger::CsvKit.process("data.csv") do |p|
 end
 ```
 
+### Default Values for Missing Cells
+
+Fill nil or empty-string cells with a default value before any `type` coercion runs:
+
+```ruby
+Philiprehberger::CsvKit.process("users.csv") do |p|
+  p.default(:country, "US")
+  p.type(:age, :integer)
+end
+```
+
 ### Date/Time Type Coercions
 
 ```ruby
@@ -211,6 +222,7 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 | `Processor#headers(*names)` | Override header names |
 | `Processor#transform(key, &block)` | Register column transform |
 | `Processor#type(key, type, **opts)` | Register built-in type coercion (:integer, :float, :string, :date, :datetime) |
+| `Processor#default(key, value)` | Fill nil or empty cells at `key` with `value` (runs before `type` coercion) |
 | `Processor#validate(key, &block)` | Register column validation (skip invalid) |
 | `Processor#skip(n)` | Skip the first N data rows |
 | `Processor#limit(n)` | Stop after processing N rows |
