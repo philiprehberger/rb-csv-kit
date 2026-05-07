@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-05-07
+
+### Added
+- `CsvKit.transpose(path_or_io, dialect:)` — returns a column-oriented hash mapping each header to the array of values across all rows. The natural complement to `to_hashes` for column-wise operations.
+
 ## [0.9.0] - 2026-04-19
 
 ### Added
@@ -112,7 +117,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Type coercion and row validation
 - Quick load and filtering convenience methods
 
-[Unreleased]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/philiprehberger/rb-csv-kit/releases/tag/v0.10.0
 [0.9.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/philiprehberger/rb-csv-kit/compare/v0.6.0...v0.7.0

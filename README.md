@@ -205,11 +205,25 @@ delimiter = Philiprehberger::CsvKit::Detector.detect("data.tsv")
 # => "\t"
 ```
 
+### Column Transpose
+
+```ruby
+require 'philiprehberger/csv_kit'
+
+# users.csv:
+# name,age
+# Alice,30
+# Bob,25
+Philiprehberger::CsvKit.transpose('users.csv')
+# => { name: ['Alice', 'Bob'], age: ['30', '25'] }
+```
+
 ## API
 
 | Method / Class | Description |
 |----------------|-------------|
 | `CsvKit.to_hashes(path_or_io, dialect:)` | Load CSV into array of symbolized hashes |
+| `CsvKit.transpose(path_or_io, dialect:)` | Returns a column-oriented hash mapping each header to its column of values |
 | `CsvKit.to_csv(rows, headers:, dialect:)` | Serialize an array of hashes to a CSV string |
 | `CsvKit.sample(path_or_io, n, dialect:)` | Return n randomly sampled rows using reservoir sampling (Algorithm R) |
 | `CsvKit.pluck(path_or_io, *keys, dialect:)` | Extract specific columns |

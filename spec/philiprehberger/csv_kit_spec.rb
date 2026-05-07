@@ -732,6 +732,51 @@ RSpec.describe Philiprehberger::CsvKit do
     end
   end
 
+  describe '.transpose' do
+    it 'returns an empty hash for an empty CSV' do
+      file = write_csv('')
+      result = described_class.transpose(file.path)
+
+      expect(result).to eq({})
+      file.close!
+    end
+
+    it 'returns a hash with single-element arrays for a single-row CSV' do
+      file = write_csv("name,age,city\nAlice,30,Berlin\n")
+      result = described_class.transpose(file.path)
+
+      expect(result).to eq(name: ['Alice'], age: ['30'], city: ['Berlin'])
+      file.close!
+    end
+
+    it 'returns a 3-key hash with 2-element arrays for a 3-column 2-row CSV' do
+      file = write_csv("name,age,city\nAlice,30,Berlin\nBob,25,Vienna\n")
+      result = described_class.transpose(file.path)
+
+      expect(result.keys.length).to eq(3)
+      expect(result.values.map(&:length)).to eq([2, 2, 2])
+      expect(result[:name]).to eq(%w[Alice Bob])
+      expect(result[:age]).to eq(%w[30 25])
+      expect(result[:city]).to eq(%w[Berlin Vienna])
+      file.close!
+    end
+
+    it 'preserves column order from the header row' do
+      file = write_csv("zeta,alpha,mu\n1,2,3\n4,5,6\n")
+      result = described_class.transpose(file.path)
+
+      expect(result.keys).to eq(%i[zeta alpha mu])
+      file.close!
+    end
+
+    it 'works with a StringIO source' do
+      io = StringIO.new("name,age\nAlice,30\nBob,25\n")
+      result = described_class.transpose(io)
+
+      expect(result).to eq(name: %w[Alice Bob], age: %w[30 25])
+    end
+  end
+
   describe Philiprehberger::CsvKit::Row do
     let(:row) { described_class.new(name: 'Alice', age: '30') }
 

@@ -42,6 +42,20 @@ module Philiprehberger
       rows
     end
 
+    # Read a CSV and return a hash mapping each header to the column of values.
+    #
+    # @param path_or_io [String, IO] the path or IO to read from
+    # @param dialect [Hash, nil] optional CSV dialect overrides
+    # @return [Hash{Symbol => Array}] column-oriented view of the CSV
+    def self.transpose(path_or_io, dialect: nil)
+      rows = to_hashes(path_or_io, dialect: dialect)
+      return {} if rows.empty?
+
+      rows.first.keys.to_h do |key|
+        [key, rows.map { |row| row[key] }]
+      end
+    end
+
     # Serialize an array of hashes to a CSV string.
     #
     # If headers is omitted, the keys of the first hash are used. Empty input
